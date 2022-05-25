@@ -44,10 +44,15 @@ pragma solidity ^0.8.6;
 /// @dev See https://eips.ethereum.org/EIPS/eip-XXXX
 ///  Note: the ERC-165 identifier for this interface is 0x6352211e.
 interface IERCXXXX /* is ERC165, ERC721Metadata */ {
-  /// @dev This emits when ownership between ENS nodes of any NBT changes by any mechanism.
-  ///  This event emits when NBTs are created (`from` == 0x0) and destroyed
-  ///  (`to` == 0x0).
-  event Transfer(bytes32 indexed _from, bytes32 indexed _to, uint256 indexed _id);
+  /// @dev This emits when a new token is created and bound to an ENS name by any mechanism.
+  /// Note: For a reliable `_from` parameter, retrieve the transaction's
+  /// authenticated `from` field.
+  event Attest(bytes32 indexed _nodeTo, uint256 indexed _tokenId);
+  /// @dev This emits when an existing NBT is revoked from an account and
+  /// destroyed by any mechanism.
+  /// Note: For a reliable `_from` parameter, retrieve the transaction's
+  /// authenticated `from` field.
+  event Revoke(bytes32 indexed _nodeTo, uint256 indexed _tokenId);
   /// @notice Find the owner of an NBT
   /// @dev NBTs assigned to empty string namehash ('') are considered invalid, and queries
   ///  about them do throw.
@@ -73,9 +78,13 @@ Still, however, since `EIP-XXXX` supports [`EIP-721`](./eip-721.md)'s `ERC721Met
 
 ### Provenance Indexing
 
-NBTs can be indexed by tracking the emission of `event Transfer(bytes32 indexed _from, bytes32 indexed _to, uint256 indexed _id)`.
+NBTs can be indexed by tracking the emission of `event Attest(bytes32 indexed _from, bytes32 indexed _to, uint256 indexed _id)`.
 
 We recommend implementers to validate `Transfer`'s `_from` field by comparing it to the transaction-level `_from` field to mitigate "sleepminting" attacks.
+
+The naming of the events is intentionally aligned with the ones defined in [`EIP-4973`](./eip-4973.md). The goal is to create a standard way for indexers to track Soul Bound Tokens, in its two facets: 
+- Account-bound Token - [`EIP-4973`](./eip-4973)
+- Name-bound Token - [`EIP-XXXX`](./eip-xxxx.md) 
 
 ## Backwards Compatibility
 
